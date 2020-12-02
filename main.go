@@ -16,9 +16,10 @@ func main() {
 
 	//app routers
 
-	newApp.Router.Use(middlewares.SetContentTypeMiddleware) // setting content-type to json
+	//newApp.Router.Use(middlewares.SetContentTypeMiddleware) // setting content-type to json
 	ApiRouter := newApp.Router.PathPrefix("/api/").Subrouter()
 	UserRouter := newApp.Router.PathPrefix("/user").Subrouter()
+	ApiRouter.Use(middlewares.AuthJwtVerify)
 	api.Router(ApiRouter, newApp.DB)
 	users.Router(UserRouter, newApp.DB)
 

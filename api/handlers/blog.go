@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"github.com/Shubhaankar-sharma/golang-blog-api/api/models"
+	user_models "github.com/Shubhaankar-sharma/golang-blog-api/users/user-models"
 	"github.com/gookit/color"
 	"github.com/gorilla/mux"
 	"log"
@@ -16,9 +17,8 @@ import (
 )
 
 type CreateBlogStruct struct {
-	Author string `json:"author"`
-	Title  string `json:"title"`
-	Body   string `json:"body"`
+	Title string `json:"title"`
+	Body  string `json:"body"`
 }
 
 // type a app.App
@@ -34,8 +34,17 @@ func CreateBlog(db *gorm.DB) http.HandlerFunc {
 			log.Println(err.Error())
 			return
 		}
+		usrid := r.Context().Value("userID").(float64)
+		user := user_models.User{}
+		newUsr, err := user.GetUserID(uint(usrid), db)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			log.Println(err.Error())
+			return
+		}
+
 		newblog := models.Blog{
-			Author: b.Author,
+			Author: *newUsr,
 			Title:  b.Title,
 			Body:   b.Body}
 
@@ -103,9 +112,8 @@ func UpdateBlog(db *gorm.DB) http.HandlerFunc {
 			return
 		}
 		b := models.Blog{
-			Author: data.Author,
-			Title:  data.Title,
-			Body:   data.Body}
+			Title: data.Title,
+			Body:  data.Body}
 		newB, err := b.Put(int(valUint), db)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)

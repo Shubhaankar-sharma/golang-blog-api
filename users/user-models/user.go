@@ -95,6 +95,13 @@ func (u *User) GetUser(db *gorm.DB) (*User, error) {
 	}
 	return account, nil
 }
+func (u *User) GetUserID(id uint, db *gorm.DB) (*User, error) {
+	account := &User{}
+	if err := db.Debug().Table("users").Where("id = ?", id).First(account).Error; err != nil {
+		return nil, err
+	}
+	return account, nil
+}
 
 // GetAllUsers returns a list of all the user
 func GetAllUsers(db *gorm.DB) (*[]User, error) {

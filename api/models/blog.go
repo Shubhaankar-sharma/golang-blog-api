@@ -1,19 +1,19 @@
 package models
 
 import (
+	"github.com/Shubhaankar-sharma/golang-blog-api/users/user-models"
 	"gorm.io/gorm"
 	"strings"
 )
 
 type Blog struct {
 	gorm.Model
-	Author string `gorm:"type:varchar(100);not null" json:"author"`
-	Title  string `gorm:"type:varchar(1000);not null" json:"title"`
-	Body   string `gorm:"size:1000;not null" json:"body"`
+	Author user_models.User `gorm:"embedded"`
+	Title  string           `gorm:"type:varchar(1000);not null" json:"title"`
+	Body   string           `gorm:"size:1000;not null" json:"body"`
 }
 
 func (b *Blog) Prepare() {
-	b.Author = strings.TrimSpace(b.Author)
 	b.Title = strings.TrimSpace(b.Title)
 }
 
@@ -49,9 +49,8 @@ func (b *Blog) GetAll(db *gorm.DB) (*[]Blog, error) {
 func (b *Blog) Put(id int, db *gorm.DB) (*Blog, error) {
 	var err error
 	err = db.Debug().Where("id = ?", id).Updates(Blog{
-		Author: b.Author,
-		Title:  b.Title,
-		Body:   b.Body}).Error
+		Title: b.Title,
+		Body:  b.Body}).Error
 	if err != nil {
 		return &Blog{}, err
 	}
