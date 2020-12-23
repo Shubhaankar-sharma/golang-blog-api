@@ -13,4 +13,5 @@ func Router(r *mux.Router, db *gorm.DB) {
 	r.HandleFunc("/blog/{id}", handlers.GetBlog(db)).Methods("GET")
 	r.HandleFunc("/blog/{id}", handlers.UpdateBlog(db)).Methods("PUT")
 	r.HandleFunc("/blogs", handlers.GetListBlog(db)).Methods("GET")
+	r.HandleFunc("/user/blogs", handlers.GetUserListBlogs(db)).Methods("GET")
 }

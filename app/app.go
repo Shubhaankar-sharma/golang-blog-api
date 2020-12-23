@@ -48,6 +48,7 @@ func (app *App) Init() {
 	app.DB = db
 	app.Router = r
 }
+
 func (app *App) Migrate() {
 	err := app.DB.Debug().AutoMigrate(&models.Blog{})
 	if err != nil {

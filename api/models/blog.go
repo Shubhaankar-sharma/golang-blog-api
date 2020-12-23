@@ -1,16 +1,20 @@
 package models
 
 import (
-	"github.com/Shubhaankar-sharma/golang-blog-api/users/user-models"
 	"gorm.io/gorm"
 	"strings"
 )
 
 type Blog struct {
 	gorm.Model
-	Author user_models.User `gorm:"embedded"`
+	Author ApiUser `gorm:"embedded"`
 	Title  string           `gorm:"type:varchar(1000);not null" json:"title"`
 	Body   string           `gorm:"size:1000;not null" json:"body"`
+}
+type ApiUser struct {
+	UId   uint   `gorm:"primary key" json:"uid"`
+	Email string `gorm:"type:varchar(100);unique_index" json:"email"`
+	Name  string `gorm:"size:100;not null"              json:"name"`
 }
 
 func (b *Blog) Prepare() {
@@ -48,11 +52,20 @@ func (b *Blog) GetAll(db *gorm.DB) (*[]Blog, error) {
 
 func (b *Blog) Put(id int, db *gorm.DB) (*Blog, error) {
 	var err error
-	err = db.Debug().Where("id = ?", id).Updates(Blog{
+	err = db.Debug().Where("id = ?", id).Where(&Blog{Author: b.Author}).Updates(Blog{
 		Title: b.Title,
 		Body:  b.Body}).Error
 	if err != nil {
 		return &Blog{}, err
 	}
 	return b, nil
+}
+
+func (b *Blog) GetAllFromUser(db *gorm.DB) (*[]Blog,error){
+	var blogs []Blog
+	records := db.Debug().Where(&Blog{Author: b.Author}).Find(&blogs)
+	if records.Error != nil{
+		return &[]Blog{}, records.Error
+	}
+	return &blogs, nil
 }
